@@ -148,7 +148,7 @@ Recent models have advanced alignment and generation strategies. MolReFlect~\cit
 
 LLM-based methods such as ChemLLM~\cite{zhang2024chemllm} and MolReGPT~\cite{molregpt} extend generation through domain specialization and retrieval-augmented generation, respectively. ChatDrug~\cite{liu2024chatdrug} and ChemCrow~\cite{bran2024chemcrow} introduce iterative loops using external tools like RDKit to guide improvements, but lack formal validation or enforcement of constraints.
 
-In contrast, \textbf{CDMS} dynamically generates a single task-specific \emph{inspector} as executable code, which performs exhaustive, deterministic validation and returns \emph{Programmatic Feedback Gradients}. This enables an iterative refinement loop that continues until all constraints are satisfied—offering stronger compliance guarantees than retrieval- or tool-augmented methods.
+In contrast, CDMS dynamically generates a single task-specific \emph{inspector} as executable code, which performs exhaustive, deterministic validation and returns \emph{Programmatic Feedback Gradients}. This enables an iterative refinement loop that continues until all constraints are satisfied—offering stronger compliance guarantees than retrieval- or tool-augmented methods.
 
 \textbf{Iterative Refinement.}  
 Iterative refinement is widely used in text generation, initially relying on human feedback~\cite{bai2022constitutional, fang2023single-step} and later on scalar rewards~\cite{Liu2022RainierRK} or free-form critiques~\cite{madaan2024self, shinn2023reflexion}. However, these methods struggle with complex, multi-constraint objectives.
@@ -157,7 +157,7 @@ Molecule optimization has followed similar trends, combining heuristics or exper
 
 TextGrad~\cite{yuksekgonul2025optimizing} incorporates external tools to produce auxiliary validation signals and generates a new verification program at each iteration to evaluate the previous output. This design introduces additional call overhead and may lead to inconsistent inspection across iterations. The resulting signals are then interpreted by an LLM to determine the refinement strategy, while the enforcement of the inferred corrections is delegated to another LLM. 
 
-In contrast, \emph{CDMS} compiles task constraints into a persistent executable inspector (executable code) that deterministically verifies constraints and produces explicit corrective prompts as an output of the code directly, eliminating the need for LLM-based interpretation of validation signals at each iteration.
+In contrast, CDMS compiles task constraints into a persistent executable inspector (executable code) that deterministically verifies constraints and produces explicit corrective prompts as an output of the code directly, eliminating the need for LLM-based interpretation of validation signals at each iteration.
     
 \section{CDMS Framework}
     \label{sec:cdms}
@@ -345,7 +345,7 @@ Finally, we analyze how restrictive the constraint sets are by measuring how man
         \bottomrule
     \end{tabular}
 
-    \caption{Performance of models with different optimization approaches. Greyed rows indicate standalone results that do not rely on LLMs.}
+    \caption{Performance of models with different optimization approaches. Grayed rows indicate standalone results that do not rely on LLMs. * Generator and inspector models both use CoT }
     \label{tab:model_results}
 \end{table*}
 
