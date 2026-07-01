@@ -779,7 +779,7 @@ Our dataset comprises a set of constraints that a chemist might consider when de
     
     Below, we showcase several samples from our dataset. These examples demonstrate how natural language molecule requirements can be translated into corresponding Python code snippets. Each snippet illustrates the implementation of a specific requirement. Please see Table~\ref{tab:requirements} and Table~\ref{tab:additional_requirements} for two examples.
 
-    \begin{table*}
+    \begin{table*}[H]
         \centering
         \small
         \begin{tabular}{|p{0.4\textwidth}|p{0.5\textwidth}|}
@@ -921,7 +921,7 @@ result = not molecule.HasSubstructMatch(pattern)
     Because the generated inspector $M_I$ drives the refinement loop, its reliability is central to CDMS. We therefore quantify how closely a \emph{generated} inspector reproduces the decisions of the hand-verified \emph{golden} validator constructed during dataset annotation (Appendix~\ref{app:dataset_samples}).
 
     \paragraph{Measurement protocol.}
-    We evaluate inspector reliability using \emph{behavioral equivalence} rather than manual code inspection, thereby assessing each inspector by its decisions. For each ChemGen item, we generate an inspector code using $M_I$ and evaluate it on a fixed probe set of $1{,}000$ molecules. The probe set includes the source molecule from which the sample was constructed, which satisfies the golden validator by construction (Appendix~\ref{app}), as well as $999$ additional molecules selected to induce both accepting and rejecting outcomes. We execute the generated inspector and the corresponding golden validator on every probe molecule and record their binary accept/reject decisions. We consider a generated inspector accurate for an item if and only if its decisions agree with those of the golden validator on all $1{,}000$ probe molecules; that is, the two validators are behaviorally equivalent over the probe set. 
+    We evaluate inspector reliability using \emph{behavioral equivalence} rather than manual code inspection, thereby assessing each inspector by its decisions. For each ChemGen item, we generate an inspector code using $M_I$ and evaluate it on a fixed probe set of $1{,}000$ molecules. The probe set includes the source molecule from which the sample was constructed, which satisfies the golden validator by construction, as well as $999$ additional molecules selected to induce both accepting and rejecting outcomes. We execute the generated inspector and the corresponding golden validator on every probe molecule and record their binary accept/reject decisions. We consider a generated inspector accurate for an item if and only if its decisions agree with those of the golden validator on all $1{,}000$ probe molecules; that is, the two validators are behaviorally equivalent over the probe set. 
     
     The reported accuracy of $96\%$ is the proportion of the 779 generated inspectors that satisfy this criterion
 
@@ -1205,7 +1205,7 @@ The first-stage filtering pass rate was 46.00\%. That is, 46.00\% of the 500 zer
 
 \subsection{Molecule Selection}
 
-After applying the first-stage filter, we selected molecules from the sampled candidates based on their scores for each metric---SAS, QED, and LogP---using a predictive scoring model. Specifically, we selected the top 10\% of the original sampled pool, corresponding to 50 molecules, for each metric. The results indicate that these molecular properties could be effectively optimized through post-generation selection, even though the generative model was not explicitly prompted to optimize them during the initial sampling stage. Furthermore, 44\% of the selected molecules passed the generated-inspector filter, suggesting that property-based selection did not substantially reduce the first-stage filtering pass rate.
+After applying the first-stage filter, we selected molecules from the sampled candidates based on their scores for each metric---SAS, QED, and LogP---using a predictive scoring model (see~\ref{app:qed_sas_evaluation}. Specifically, we selected the top 10\% of the original sampled pool, corresponding to 50 molecules, for each metric. The results indicate that these molecular properties could be effectively optimized through post-generation selection, even though the generative model was not explicitly prompted to optimize them during the initial sampling stage. Furthermore, 44\% of the selected molecules passed the generated-inspector filter, suggesting that property-based selection did not substantially reduce the first-stage filtering pass rate.
 
 \section{Molecule synthesis applicable features}
 \label{app:cdms_applicable_features}
