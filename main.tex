@@ -274,6 +274,8 @@ Natural language requirements follow a structured constraint language that combi
 
 ChemGen contains 779 unique samples and a total of 4,599 constraints. Each compound is associated with a set of 3--9 requirements (5.9 on average), reflecting the constraint-driven formulation of the task. 
 
+Additional category-level percentage statistics are reported in Appendix~\ref{app:chemgen_category_stats}.
+
 The constraints span multiple molecular property categories and comparison operators. In total, the dataset includes molecular properties, such as ring counts, covalent bond counts, molecular weight, topological polar surface area (TPSA), heavy atom counts, rotatable bonds, and functional group requirements. These properties are expressed through ten comparison operator types (e.g., inequalities, bounded ranges, equality relations, and presence or absence constraints). Across the dataset, the natural language descriptions are generated from 53 unique requirement templates (after abstracting numerical values), and functional group detection is implemented using 18 SMARTS patterns corresponding to chemically meaningful substructures. This structure allows ChemGen to represent a diverse range of molecular requirements while maintaining consistent evaluation through executable validation code.
 
 Finally, we analyze how restrictive the constraint sets are by measuring how many molecules in PubChem satisfy the specified requirements. PubChem currently contains approximately 115 million compounds, providing a large reference space for evaluating constraint difficulty.  For many entries in ChemGen, the requirements narrow this space to only a small number of candidates. In 0.4\% of the dataset, only one molecule in the entire PubChem database is expected to satisfy the constraints, indicating extremely restrictive requirement sets. Only 8.4\% of entries correspond to more than 1,000 candidate molecules in PubChem, despite the database containing over 115 million compounds. Overall, these statistics demonstrate that ChemGen does not consist of trivial constraint descriptions: many requirement sets isolate only a very small fraction of the molecules in a database of more than 115 million compounds, making the generation task significantly constrained.
@@ -651,7 +653,7 @@ def compile_feedback(model_output):
     \end{lstlisting}
 
     
-\begin{table*}
+\begin{table*}[t]
     \centering
     \begin{tabular}{|p{2.5cm}|p{13cm}|}
         \hline
@@ -689,25 +691,75 @@ def compile_feedback(model_output):
 
     \section{ChemGen Dataset}
         \label{app:dataset_samples}
-
-Our dataset comprises a set of constraints that a chemist might consider when designing a molecule to satisfy specific properties\cite{guo2024takestangodirectlyoptimizing}. The dataset was constructed using real-world, well-researched molecules through the following steps:
-
-\begin{enumerate}
-    \item \textbf{Defining Desired Attributes:} We collaborated with chemists to identify a set of desired attributes that are commonly of interest in molecular design.
+    \subsection{ChemGen Construction}
+    Our dataset comprises a set of constraints that a chemist might consider when designing a molecule to satisfy specific properties\cite{guo2024takestangodirectlyoptimizing}. The dataset was constructed using real-world, well-researched molecules through the following steps:
     
-    \item \textbf{Collecting Molecules:} A total of 779 randomly selected molecules were collected from the PubChem database, covering multiple domains such as salts, industrial building blocks, drug discovery, acids, and more.
+    \begin{enumerate}
+        \item \textbf{Defining Desired Attributes:} We collaborated with chemists to identify a set of desired attributes that are commonly of interest in molecular design.
+        
+        \item \textbf{Collecting Molecules:} A total of 779 randomly selected molecules were collected from the PubChem database, covering multiple domains such as salts, industrial building blocks, drug discovery, acids, and more.
+        
+        \item \textbf{Attribute Annotation:} For each molecule, we retrieved the studied attributes (see Appendix~\ref{app:studied_att}) annotated by human domain experts in the PubChem database. From this, we filtered attributes that matched our predefined set of studied properties.
+        
+        \item \textbf{Generating Text Descriptions:} Human annotators compiled textual descriptions of the attributes observed in each molecule. For example, a molecule with 2 rings of sizes 2 and 3 and a carboxyl functional group might be described as: \emph{``This molecule has 2 rings, one of size 2 and the other is of size 3, and has a carboxyl functional group.''}
+        
+        \item \textbf{Code-Based Verification:} Computer scientists annotated these textual constraints to create a \emph{golden-inspector} – a code-based validator. This tool verifies whether a given molecule, represented as a SMILES string, adheres to the textual constraints defined by the dataset.
     
-    \item \textbf{Attribute Annotation:} For each molecule, we retrieved the studied attributes (see Appendix~\ref{app:studied_att}) annotated by human domain experts in the PubChem database. From this, we filtered attributes that matched our predefined set of studied properties.
+        \item \textbf{Further Validation:} To further validate the annotated code, we used the source molecule from which the text description—and consequently the code—was generated. We ran the golden-inspector code on this source molecule to ensure there were no errors in dataset creation and to verify that at least one molecule satisfies the \emph{golden-inspector}. Additionally, we conducted a set of experiments to ensure that the code correctly fails for at least one other molecule from the dataset, thereby minimizing the number of false positives.
+    \end{enumerate}
     
-    \item \textbf{Generating Text Descriptions:} Human annotators compiled textual descriptions of the attributes observed in each molecule. For example, a molecule with 2 rings of sizes 2 and 3 and a carboxyl functional group might be described as: \emph{``This molecule has 2 rings, one of size 2 and the other is of size 3, and has a carboxyl functional group.''}
+        Our process ensures the relevancy of the generated constraints and their interest in the domain of de novo molecule generation.
     
-    \item \textbf{Code-Based Verification:} Computer scientists annotated these textual constraints to create a \emph{golden-inspector} – a code-based validator. This tool verifies whether a given molecule, represented as a SMILES string, adheres to the textual constraints defined by the dataset.
+    \subsection{Category-Level Dataset Statistics}
+    \label{app:chemgen_category_stats}
+    We report two complementary percentage-based views of ChemGen constraints. Table~\ref{tab:chemgen_constraint_category_share} quantifies the constraint-level composition of the dataset, where percentages are computed with respect to the total number of constraints ($N=4{,}599$); this table displays how frequently each category appears among all requirement instances. 
+    
+    Table~\ref{tab:chemgen_sample_category_share} quantifies sample-level coverage, where percentages are computed with respect to the total number of samples ($N=779$); this table answers in how many dataset entries each category appears at least once. Because a single sample can include multiple categories, sample-level percentages are not expected to sum to 100\%. Together, these views distinguish category prevalence at the requirement-instance level from category co-occurrence breadth across samples.
 
-    \item \textbf{Further Validation:} To further validate the annotated code, we used the source molecule from which the text description—and consequently the code—was generated. We ran the golden-inspector code on this source molecule to ensure there were no errors in dataset creation and to verify that at least one molecule satisfies the \emph{golden-inspector}. Additionally, we conducted a set of experiments to ensure that the code correctly fails for at least one other molecule from the dataset, thereby minimizing the number of false positives.
-\end{enumerate}
+    \begin{table*}[h]
+        \centering
+        \small
+        \begin{tabular}{lrr}
+            \toprule
+            \textbf{Attribute category} & \textbf{Count} & \textbf{Share of all constraints (\%)} \\
+            \midrule
+            Functional group constraints (contain/not contain) & 1020 & 22.18 \\
+            Covalently bonded unit count & 543 & 11.81 \\
+            Topological polar surface area & 538 & 11.70 \\
+            Molecular weight & 531 & 11.55 \\
+            Heavy atom count & 530 & 11.52 \\
+            Rotatable bond count & 516 & 11.22 \\
+            Rings: exact count with specified sizes & 462 & 10.05 \\
+            Rings: bounded count per ring size & 459 & 9.98 \\
+            \midrule
+            \textbf{Total} & \textbf{4599} & \textbf{100.00} \\
+            \bottomrule
+        \end{tabular}
+        \caption{Share of all ChemGen constraints by category.}
+        \label{tab:chemgen_constraint_category_share}
+    \end{table*}
 
-    Our process ensures the relevancy of the generated constraints and their interest in the domain of de novo molecule generation.
-
+    \begin{table*}[h]
+        \centering
+        \small
+        \begin{tabular}{lrr}
+            \toprule
+            \textbf{Attribute category} & \textbf{Samples with category} & \textbf{Share of all samples (\%)} \\
+            \midrule
+            Functional group constraints (contain/not contain) & 677 & 86.91 \\
+            Covalently bonded unit count & 543 & 69.70 \\
+            Topological polar surface area & 538 & 69.06 \\
+            Molecular weight & 531 & 68.16 \\
+            Heavy atom count & 530 & 68.04 \\
+            Rotatable bond count & 516 & 66.24 \\
+            Rings: exact count with specified sizes & 462 & 59.31 \\
+            Rings: bounded count per ring size & 459 & 58.92 \\
+            \bottomrule
+        \end{tabular}
+        \caption{Share of ChemGen samples containing at least one constraint from each category (N=779).}
+        \label{tab:chemgen_sample_category_share}
+    \end{table*}
+    
     \subsection{Studied Constraints}
     \label{app:studied_att}
     This section outlines the key constraints in the dataset and their motivations. The source molecule is annotated by $S$
