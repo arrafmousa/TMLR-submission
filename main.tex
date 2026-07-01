@@ -540,7 +540,7 @@ Importantly, code-based feedback is not unique to CDMS: TextGrad also generates 
     \subsection{Application to Drug-like Generation}
 \label{sec:applications_in_drug}
 
-We compare (i) a one-shot generator that directly maximises QED and (ii) a two-step, lab-style pipeline: heuristic candidate generation (e.g., limited ring count, no reactive groups) followed by QED filtering. The former explores a wider chemical space yet often proposes unsynthesizable molecules; the latter narrows the search but boosts synthetic accessibility.
+We compare (i) a one-shot generator that directly maximizes QED and (ii) a two-step, lab-style pipeline: heuristic candidate generation (e.g., limited ring count and no reactive groups) followed by QED filtering, with the QED and SAS computation detailed in Appendix~\ref{app:qed_sas_evaluation}. The former explores a wider chemical space yet often proposes molecules with poor estimated synthetic accessibility; the latter narrows the search but improves SAS.
 
 To quantify the trade-off, we compare state-of-the-art end-to-end molecule generators against a two-stage variant whose first step is either CDMS or one of the molecule-generation baselines considered in this setting. After enforcing expert chemical constraints (Appendix~\ref{app:dataset_samples}), we rank candidates by QED and keep the top 10~\%.  The molecule sampling and post-generation selection procedure used in this experiment is detailed in Appendix~\ref{app:molecule_sampling}. Table~\ref{tab:two_stage_vs_e2e} shows that CDMS delivers both the lowest SAS (best computed synthetic accessibility) and the highest QED (a computational drug-likeness proxy), outperforming BioT5+ and MolReGPT in either setting. We attribute this to the iterative process that builds the molecule gradually. We also note that XlogP (a measure of water solubility) shows that CDMS yields unbiased molecules, as it was not asked to generate soluble molecules, whereas other models produced significantly more soluble compounds — a bias that is not always desirable depending on downstream tasks. Additional optimization results are in Appendix~\ref{app:cdms_opt}.
 
@@ -1184,6 +1184,17 @@ result = not molecule.HasSubstructMatch(pattern)
 
     Inference for the whole dataset costs less than 40\$ using the AzureOpenAI and NVIDIA NIM.
 
+    \subsection{QED and SAS Evaluation}
+    \label{app:qed_sas_evaluation}
+    
+    We compute QED and synthetic accessibility scores using RDKit version 2024.09.1. Each generated SMILES string is parsed with \texttt{Chem.MolFromSmiles}, and invalid molecules are excluded from these calculations.
+    
+    QED is computed with \texttt{rdkit.Chem.QED.qed} and ranges from 0 to 1, where higher values indicate greater drug-likeness.
+    
+    Synthetic accessibility (SAS) is computed with RDKit's implementation of the Ertl--Schuffenhauer score, \texttt{rdkit.Contrib.SA\_Score.sascorer.calculateScore}. We denote this metric as SAS, which ranges from 1 to 10, where lower values indicate greater estimated synthetic accessibility.
+    
+    Both metrics are deterministic functions of the molecular graph and are used as computational proxies rather than evidence of experimental drug-likeness or the existence of a feasible synthesis route.
+    
 \section{Molecule Sampling} \label{app:molecule_sampling}
 
 In this experiment, we utilized GPT-4o in a zero-shot setting to generate candidate molecules and also as the backbone for inspector-code generation. For each given set of constraints in ChemGen, we first sampled 500 candidate molecules using GPT-4o as the generative model. The generative model was not explicitly instructed to optimize for any specific molecular attribute, such as SAS, QED, or LogP, during this sampling stage. After the candidate molecules were generated, we used GPT-4o to generate the corresponding inspector code, denoted as $M_I$, for the same set of constraints. The generated inspector was then used as a first-stage filter over the 500 sampled molecules.
